@@ -10,9 +10,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.lamri.werewolfbe.dao.entity.company.Company;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -36,7 +38,7 @@ public class User implements UserDetails, Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
     @SequenceGenerator(name="user_generator", sequenceName = "user_seq", allocationSize=1)
     @Column(name = "id", updatable = false, nullable = false)
-    private Long id ;
+    private Long userId ;
 
     @Column(name = "user_name", nullable = false)
     private String userName;
@@ -48,6 +50,10 @@ public class User implements UserDetails, Serializable {
     private String email;
 
     private String password;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    private List<Company> companies = new ArrayList<>();
 
     @Column(name = "created_at")
     @CreatedDate

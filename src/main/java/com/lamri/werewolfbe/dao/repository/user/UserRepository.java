@@ -1,4 +1,4 @@
-package com.lamri.werewolfbe.dao.repository;
+package com.lamri.werewolfbe.dao.repository.user;
 
 import com.lamri.werewolfbe.dao.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.lamri.werewolfbe.mapper;
+package com.lamri.werewolfbe.mapper.user;
 
 import com.lamri.werewolfbe.dao.entity.user.User;
 import com.lamri.werewolfbe.dto.user.UserDTO;

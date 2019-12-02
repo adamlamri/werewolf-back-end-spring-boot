@@ -1,7 +1,7 @@
-package com.lamri.werewolfbe.service;
+package com.lamri.werewolfbe.service.user;
 
 import com.lamri.werewolfbe.dao.entity.user.User;
-import com.lamri.werewolfbe.dao.repository.UserRepository;
+import com.lamri.werewolfbe.dao.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,6 +1,6 @@
 package com.lamri.werewolfbe.config;
 
-import com.lamri.werewolfbe.service.WerewolfUserDetailsService;
+import com.lamri.werewolfbe.service.user.WerewolfUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
