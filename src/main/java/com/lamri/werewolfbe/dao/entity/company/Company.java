@@ -2,6 +2,8 @@ package com.lamri.werewolfbe.dao.entity.company;
 
 import com.lamri.werewolfbe.dao.entity.Country;
 import lombok.Data;
+import lombok.ToString;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -16,17 +18,22 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@ToString
 @Data
 @Entity
+@Table(name = "company")
+@Where(clause = "deleted = false")
 public class Company implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "company_generator")
-    @SequenceGenerator(name="company_generator", sequenceName = "company_generator_seq", allocationSize=1)
+    @SequenceGenerator(name = "company_generator", sequenceName = "company_generator_seq", allocationSize = 1)
     @Column(name = "company_id", updatable = false, nullable = false)
     private Long companyId;
 
@@ -47,13 +54,19 @@ public class Company implements Serializable {
 
     private String email;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "company_id")
-    private List<CompanyAddress> companyAddresses;
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CompanyAddress> companyAddresses = new ArrayList<>();
 
-    @Column(columnDefinition = "boolean default false")
+    @Column(columnDefinition = "boolean default true")
     private Boolean active;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean deleted;
+
+    public void addCompanyAddress(CompanyAddress companyAddress) {
+        if (companyAddress != null) {
+            this.getCompanyAddresses().add(companyAddress);
+            companyAddress.setCompany(this);
+        }
+    }
 }

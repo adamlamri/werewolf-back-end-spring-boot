@@ -11,4 +11,6 @@ public interface CountryRepository extends JpaRepository<Country, String> {
 
     List<Country> findAllByActiveIsTrue();
 
+    Country findByIso(String iso);
+
 }
