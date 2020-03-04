@@ -7,17 +7,20 @@ import com.lamri.werewolfbe.dao.entity.Village;
 import com.lamri.werewolfbe.dao.entity.Ward;
 import com.lamri.werewolfbe.dao.entity.company.Company;
 import com.lamri.werewolfbe.dao.entity.company.CompanyAddress;
+import com.lamri.werewolfbe.dao.entity.user.User;
 import com.lamri.werewolfbe.dao.repository.company.CompanyRepository;
 import com.lamri.werewolfbe.dao.repository.DistrictRepository;
 import com.lamri.werewolfbe.dao.repository.ProvinceRepository;
 import com.lamri.werewolfbe.dao.repository.VillageRepository;
 import com.lamri.werewolfbe.dao.repository.WardRepository;
 import com.lamri.werewolfbe.dao.repository.country.CountryRepository;
+import com.lamri.werewolfbe.dao.repository.user.UserRepository;
 import com.lamri.werewolfbe.dto.company.CompanyAddressDTO;
 import com.lamri.werewolfbe.dto.company.CompanyDTO;
 import com.lamri.werewolfbe.dto.company.CreateCompanyDTO;
 import com.lamri.werewolfbe.mapper.company.CompanyAddressMapper;
 import com.lamri.werewolfbe.mapper.company.CompanyMapper;
+import com.lamri.werewolfbe.utils.Utils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,34 +32,49 @@ import java.util.List;
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
-    @Autowired
-    CompanyRepository companyRepository;
-    @Autowired
-    CountryRepository countryRepository;
-    @Autowired
-    ProvinceRepository provinceRepository;
-    @Autowired
-    DistrictRepository districtRepository;
-    @Autowired
-    WardRepository wardRepository;
-    @Autowired
-    VillageRepository villageRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    CompanyMapper companyMapper;
+    private CompanyRepository companyRepository;
     @Autowired
-    CompanyAddressMapper companyAddressMapper;
+    private CountryRepository countryRepository;
+    @Autowired
+    private ProvinceRepository provinceRepository;
+    @Autowired
+    private DistrictRepository districtRepository;
+    @Autowired
+    private WardRepository wardRepository;
+    @Autowired
+    private VillageRepository villageRepository;
+
+    @Autowired
+    private CompanyMapper companyMapper;
+    @Autowired
+    private CompanyAddressMapper companyAddressMapper;
 
     @Override
     @Transactional(readOnly = true)
-    public List<CompanyDTO> findAllCompaniesByUserId(long userId) {
-        List<Company> companies = companyRepository.findAllByUserIdAndDeletedIsFalse(userId);
+    public List<CompanyDTO> findAllCompaniesByUser(User user) {
+        List<Company> companies = companyRepository.findAllByUserAndDeletedIsFalse(user);
         List<CompanyDTO> companyDTOS = companyMapper.companyToCompanyDTOs(companies);
 
         return companyDTOS;
     }
 
-    public CompanyDTO createCompany(CreateCompanyDTO companyDTO, long userId) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<CompanyDTO> findAllCompaniesOfCurrentUser() {
+        final User currentUser = Utils.getCurrentUser();
+
+        return findAllCompaniesByUser(currentUser);
+    }
+
+    @Transactional
+    @Override
+    public CompanyDTO createCompany(CreateCompanyDTO companyDTO) {
+
+        User currentUser = userRepository.getOne(Utils.getCurrentUser().getUserId());
+
         Country country = countryRepository.findByIso(companyDTO.getCountryIso());
 
         Province province = provinceRepository.findByProvinceId(companyDTO.getProvinceId());
@@ -66,13 +84,12 @@ public class CompanyServiceImpl implements CompanyService {
 
         Company company = new Company();
         company.setCompanyId(null);
-        company.setUserId(userId);
         company.setActive(true);
         company.setDeleted(false);
         company.setCountry(country);
         company.setEmail(companyDTO.getEmail());
         company.setName(companyDTO.getName());
-
+        company.setUser(currentUser);
 
         CompanyAddress companyAddress = new CompanyAddress();
         companyAddress.setProvince(province);
@@ -86,7 +103,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         Company newCompany = companyRepository.save(company);
 
-        log.info("Company: " + newCompany + " saved to userId:" + userId);
+        log.info("Company: " + newCompany + " saved to userId:" + currentUser.getUserId());
 
         return companyMapper.companyToCompanyDTO(newCompany);
     }

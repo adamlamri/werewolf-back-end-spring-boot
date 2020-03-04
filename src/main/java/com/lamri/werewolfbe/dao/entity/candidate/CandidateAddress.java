@@ -1,14 +1,16 @@
-package com.lamri.werewolfbe.dao.entity.company;
+package com.lamri.werewolfbe.dao.entity.candidate;
 
 import com.lamri.werewolfbe.dao.entity.District;
 import com.lamri.werewolfbe.dao.entity.Province;
 import com.lamri.werewolfbe.dao.entity.Village;
 import com.lamri.werewolfbe.dao.entity.Ward;
+import com.lamri.werewolfbe.dao.entity.company.Company;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,27 +19,30 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "company_address")
+@Table(name = "candidate_address")
 @Where(clause = "deleted = false")
-@ToString(exclude = {"company"})
-public class CompanyAddress {
+@ToString(exclude = {"candidate"})
+public class CandidateAddress {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "address_generator")
-    @SequenceGenerator(name="address_generator", sequenceName = "address_seq", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "candidate_address_generator")
+    @SequenceGenerator(name="candidate_address_generator", sequenceName = "candidate_address_seq", allocationSize=1)
     @Column(name = "id", updatable = false, nullable = false)
     Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
-    Company company;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "candidate_address_id")
+    Candidate candidate;
 
     String detail;
 
@@ -63,14 +68,4 @@ public class CompanyAddress {
 
     @Column(columnDefinition = "boolean default false")
     Boolean deleted;
-
-    public CompanyAddress(Province province, District district, Ward ward, Village village, String detail) {
-        this.province = province;
-        this.district = district;
-        this.ward = ward;
-        this.village = village;
-        this.detail = detail;
-        this.active = true;
-        this.deleted = false;
-    }
 }

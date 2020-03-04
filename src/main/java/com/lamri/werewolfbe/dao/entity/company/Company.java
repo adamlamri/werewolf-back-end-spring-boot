@@ -1,6 +1,7 @@
 package com.lamri.werewolfbe.dao.entity.company;
 
 import com.lamri.werewolfbe.dao.entity.Country;
+import com.lamri.werewolfbe.dao.entity.user.User;
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
@@ -37,8 +38,9 @@ public class Company implements Serializable {
     @Column(name = "company_id", updatable = false, nullable = false)
     private Long companyId;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "country_iso_code")

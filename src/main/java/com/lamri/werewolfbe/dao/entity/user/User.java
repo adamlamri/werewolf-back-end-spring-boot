@@ -1,5 +1,18 @@
 package com.lamri.werewolfbe.dao.entity.user;
 
+import com.lamri.werewolfbe.dao.entity.Technology;
+import com.lamri.werewolfbe.dao.entity.candidate.Candidate;
+import com.lamri.werewolfbe.dao.entity.company.Company;
+import lombok.Data;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,15 +26,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import com.lamri.werewolfbe.dao.entity.company.Company;
-import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,11 +38,13 @@ import java.util.Set;
 @Table(name = "users")
 public class User implements UserDetails, Serializable {
 
+    private static final long serialVersionUID = 7866545119065747212L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
-    @SequenceGenerator(name="user_generator", sequenceName = "user_seq", allocationSize=1)
+    @SequenceGenerator(name = "user_generator", sequenceName = "user_seq", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
-    private Long userId ;
+    private Long userId;
 
     @Column(name = "user_name", nullable = false)
     private String userName;
@@ -51,9 +57,14 @@ public class User implements UserDetails, Serializable {
 
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "user_id")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Company> companies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Candidate> candidates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Technology> technologies = new ArrayList<>();
 
     @Column(name = "created_at")
     @CreatedDate
@@ -116,5 +127,26 @@ public class User implements UserDetails, Serializable {
     @Override
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    public void addCompany(Company company) {
+        if (company != null) {
+            this.getCompanies().add(company);
+            company.setUser(this);
+        }
+    }
+
+    public void addCandidate(Candidate candidate) {
+        if (candidate != null) {
+            this.getCandidates().add(candidate);
+            candidate.setUser(this);
+        }
+    }
+
+    public void addTechnology(Technology technology) {
+        if (technology != null) {
+            this.getTechnologies().add(technology);
+            technology.setUser(this);
+        }
     }
 }
